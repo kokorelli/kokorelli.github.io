@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>CrabPi: Tesla connected</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#0b101e;color:#ecf1fa;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.wrap{max-width:440px;padding:28px 22px;text-align:center}
+.crab{font-size:56px}
+h1{font-size:22px;margin:10px 0}
+p{color:#b8c3d8;font-size:16px;line-height:1.45}
+#code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;word-break:break-all;background:#15203a;border:1px solid #263454;border-radius:12px;padding:14px;margin:14px 0;text-align:left;user-select:all}
+button{width:100%;padding:16px;font-size:18px;font-weight:700;border:0;border-radius:14px;background:#ea4e3c;color:#fff}
+.small{font-size:13px;color:#7f8ca6}
+.err{color:#ff6b6b}
+</style></head><body>
+<div class="wrap">
+  <div class="crab">&#x1F980;&#x1F697;</div>
+  <h1 id="title">Almost done</h1>
+  <p id="msg">Copy this one-time code and paste it into the <b>Tesla</b> box on your CrabPi phone page (crabpi.local:8080).</p>
+  <div id="code"></div>
+  <button id="copy">Copy code</button>
+  <p class="small">The code only works once and expires in a few minutes. This page doesn't store or send it anywhere.</p>
+</div>
+<script>
+// Tesla sends you here after you approve CrabPi. The code only lives in this page's address.
+const q = new URLSearchParams(location.search);
+const code = q.get("code"), err = q.get("error");
+const $ = s => document.querySelector(s);
+if (err) {
+  $("#title").textContent = "Not connected";
+  $("#msg").innerHTML = '<span class="err">Tesla said: ' + (q.get("error_description") || err).replace(/[<>&]/g, "") + "</span>";
+  $("#code").style.display = "none"; $("#copy").style.display = "none";
+} else if (!code) {
+  $("#title").textContent = "Nothing to show";
+  $("#msg").textContent = "This page is only used when connecting a car to CrabPi.";
+  $("#code").style.display = "none"; $("#copy").style.display = "none";
+} else {
+  $("#code").textContent = code;
+  history.replaceState(null, "", location.pathname);       // drop the code from the address bar/history
+  $("#copy").onclick = async () => {
+    try { await navigator.clipboard.writeText(code); $("#copy").textContent = "✓ Copied"; }
+    catch (e) { $("#copy").textContent = "Select the code above and copy it"; }
+  };
+}
+</script>
+</body></html>
